@@ -29,9 +29,6 @@
   font-family: Raleway, sans-serif;
   line-height: 1;
 }
-#cssmenu ul {
-  background: #ffffff;
-}
 #cssmenu > ul > li {
   float: left;
 }
