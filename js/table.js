@@ -1,7 +1,7 @@
 $(function(){
 	$("td").click(function(event){
 		var at = $(this).attr('class');
-		console.log( $(this).parent().attr("row") +" "+ $(this).attr("col"));
+		//console.log( $(this).parent().attr("row") +" "+ $(this).attr("col"));
 		if(at=="time"){
 			return;
 		}else if(at==null){

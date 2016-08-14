@@ -141,6 +141,7 @@ textarea {
 }
 .top-row > div {
   float: left;
+  /*width: 48%;*/
   width: 48%;
   margin-right: 4%;
 }
@@ -179,6 +180,7 @@ textarea {
 .select-style {
     padding: 0;
     margin: 0;
+    margin-left: 210px;
     border: 1px solid #ccc;
     width: 35px;
     border-radius: 3px;
@@ -202,4 +204,8 @@ textarea {
 
 .select-style select:focus {
     outline: none;
+}
+#carreras{
+	margin-left: 110px;
+	width: 110px;
 }

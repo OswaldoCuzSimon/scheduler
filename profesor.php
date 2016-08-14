@@ -8,6 +8,9 @@
 	<link rel="stylesheet" href="css/forms.css">
 	<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
 	<script src="js/tabs.js" type="text/javascript"></script>
+	<script src="js/form.js" type="text/javascript"></script>
+	<script src="js/table.js" type="text/javascript"></script>
+	<script src="js/profesor.js" type="text/javascript"></script>
 	<title>Scheduler</title>
 </head>
 <body>
@@ -15,7 +18,7 @@
 	
 	<div class="form">
 	<h1>Agregar profesor</h1>
-	<form action="/" method="post">
+	<form id="profesor_form" action="/" method="post">
 		<div class="top-row">
 			<div class="field-wrap">
 				<label>Id profesor:<span class="req">*</span></label><input type="text" required autocomplete="off" />
@@ -28,10 +31,12 @@
 			<div class="field-wrap">
 				<label>Nombre profesor:<span class="req">*</span></label><input type="text"required autocomplete="off"/>
 			</div>
+		</div><br>
+		<div class="top-row">
 			<div class="field-wrap">
 				<label>Carga academica:<span class="req">*</span></label>
 			</div>
-			<div class="field-wrap">
+		</div>
 				<div class="select-style"><select size="1">
 					<option value="1">1</option>
 					<option value="2">2</option>
@@ -39,8 +44,6 @@
 					<option value="4">4</option>
 					<option value="5">5</option>
 				</select></div>
-			</div>
-		</div>
 		<br>
 		<div class='tab'>
 		<table id="header-fixed" border='0' cellpadding='0' cellspacing='0'>
@@ -65,12 +68,11 @@
 				<button class="button button-block"/>eliminar</button>
 			</div>
 			<div class="field-wrap">
-				<input type="button" class="button button-block" value="Agregar"/>
+				<input type="submit" class="button button-block" value="Agregar"/>
 			</div>
 		</div>
 	</form>
-
-
+	</div>
 </body>
 <script>
 tabSelected("#profesor");
