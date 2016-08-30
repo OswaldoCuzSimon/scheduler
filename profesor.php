@@ -4,9 +4,12 @@
 	<meta charset='utf-8'>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/table.css">
 	<link rel="stylesheet" href="css/forms.css">
 	<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="js/tabs.js" type="text/javascript"></script>
 	<script src="js/form.js" type="text/javascript"></script>
 	<script src="js/table.js" type="text/javascript"></script>
@@ -18,10 +21,11 @@
 	
 	<div class="form">
 	<h1>Agregar profesor</h1>
-	<form id="profesor_form" action="/" method="post">
+	<!--action="profesor_add.php"-->
+	<form id="profesor_form" method="post">
 		<div class="top-row">
 			<div class="field-wrap">
-				<label>Id profesor:<span class="req">*</span></label><input type="text" required autocomplete="off" />
+				<label>Id profesor:<span class="req">*</span></label><input id="id" type="text" required autocomplete="off" />
 			</div>
 			<div class="field-wrap">
 				<button class="button button-block"/>buscar</button>
@@ -29,7 +33,7 @@
 		</div>
 		<div class="top-row">
 			<div class="field-wrap">
-				<label>Nombre profesor:<span class="req">*</span></label><input type="text"required autocomplete="off"/>
+				<label>Nombre profesor:<span class="req">*</span></label><input id="nombre" type="text"required autocomplete="off"/>
 			</div>
 		</div><br>
 		<div class="top-row">
@@ -37,7 +41,7 @@
 				<label>Carga academica:<span class="req">*</span></label>
 			</div>
 		</div>
-				<div class="select-style"><select size="1">
+				<div class="select-style"><select id="cargaAcademica" size="1">
 					<option value="1">1</option>
 					<option value="2">2</option>
 					<option value="3">3</option>
@@ -63,6 +67,7 @@
 			<tr row="13"><td class='time'>19:00</td> <td col="1"></td> <td col="2"></td> <td col="3"></td> <td col="4"></td> <td col="5"></td> </tr>
 		</table>
 		</div>
+		<div id="letrero"></div>
 		<div class="top-row">
 			<div class="field-wrap">
 				<button class="button button-block"/>eliminar</button>
@@ -72,7 +77,17 @@
 			</div>
 		</div>
 	</form>
-	</div>
+	
+
+	
+
+	<!--
+	alert-success
+	alert-info
+	alert-warning
+	alert-danger
+	-->
+</div>
 </body>
 <script>
 tabSelected("#profesor");
