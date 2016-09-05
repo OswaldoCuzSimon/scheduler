@@ -1,8 +1,26 @@
 $(function(){
-	$( "#profesor_form" ).submit(function( event ) {
-		event.preventDefault();
-		var seleccion = $(".cs335, .green");
 
+	String.prototype.allReplace = function(obj) {
+		var retStr = this;
+		for (var x in obj) {
+			retStr = retStr.replace(new RegExp(x, 'g'), obj[x]);
+			//retStr = retStr.replace(x, obj[x]);
+		}
+		return retStr;
+	};
+	$("#profesor_form button[id=buscar").submit(function(event){
+
+		event.preventDefault();
+		console.log("buscar");
+	});
+	$("#profesor_form button[id=eliminar]").click(function(event){
+		event.preventDefault();
+		$("#profesor_form")[0].reset()
+	});
+	$("#profesor_form input[type=submit]").click(function( event ) {
+		event.preventDefault();
+
+		var seleccion = $(".cs335, .green");
 		var tabla = [];
 		seleccion.each(function(id,val){
 			var objcell = $(val);
@@ -17,14 +35,15 @@ $(function(){
 		var nombre = $("#nombre").val();
 		var cargaAcademica = $('#cargaAcademica').val();
 		
+		var alerta = "<div class='alert alert-#type_alert alert-dismissible' role='alert'>"+
+				"<button type='button' class='close' data-dismiss='alert' aria-label='Close' onclick='cerrar()'><span aria-hidden='true'>&times;</span></button>"+
+					"<strong> #type_alert! </strong>#letrero_text</div>";
+
 		if (tabla.length <= 0) {
 			var type_alert='danger';
-				var letrero_text = 'No se puede agregar un profesor sin carga academica';
-				var alerta = "<div class='alert alert-"+type_alert+" alert-dismissible' role='alert'>"+
-					"<button type='button' class='close' data-dismiss='alert' aria-label='Close' onclick='cerrar()'><span aria-hidden='true'>&times;</span></button>"+
-						"<strong>"+type_alert+"! </strong>"+letrero_text+"</div>";
-				$('#letrero').append(alerta);
-				return;
+			var letrero_text = 'No se puede agregar un profesor sin carga academica';
+			$('#letrero').append(alerta.allReplace({'#type_alert':type_alert,'#letrero_text':letrero_text}) );
+			return;
 		}
 
 		$.ajax({
@@ -38,20 +57,19 @@ $(function(){
 					tabla	: tabla,
 				},
 		}).done(function( data, textStatus, jqXHR ) {
-			var type_alert='success';
-				var letrero_text = data.message;
-				var alerta = "<div class='alert alert-"+type_alert+" alert-dismissible' role='alert'>"+
-					"<button type='button' class='close' data-dismiss='alert' aria-label='Close' onclick='cerrar()'><span aria-hidden='true'>&times;</span></button>"+
-						"<strong>"+type_alert+"! </strong>"+letrero_text+"</div>";
-				$('#letrero').append(alerta);
-		})
-		.fail(function( jqXHR, textStatus, errorThrown ) {
+			
+			var letrero_text = data.message;
+			
+			if(data.success==true){
+				var type_alert='success';
+			}else{
+				var type_alert='danger';
+			}
+			$('#letrero').append(alerta.allReplace({'#type_alert':type_alert,'#letrero_text':letrero_text}) );
+		}).fail(function( jqXHR, textStatus, errorThrown ) {
 			var type_alert='danger';
 				var letrero_text = data.message;
-				var alerta = "<div class='alert alert-"+type_alert+" alert-dismissible' role='alert'>"+
-					"<button type='button' class='close' data-dismiss='alert' aria-label='Close' onclick='cerrar()'><span aria-hidden='true'>&times;</span></button>"+
-						"<strong>"+type_alert+"! </strong>"+letrero_text+"</div>";
-				$('#letrero').append(alerta);
+				$('#letrero').append(alerta.allReplace({'#type_alert':type_alert,'#letrero_text':letrero_text}) );
 		});
 
 		

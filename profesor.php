@@ -4,16 +4,15 @@
 	<meta charset='utf-8'>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="css/table.css">
 	<link rel="stylesheet" href="css/forms.css">
 	<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="js/tabs.js" type="text/javascript"></script>
-	<script src="js/form.js" type="text/javascript"></script>
+	
 	<script src="js/table.js" type="text/javascript"></script>
 	<script src="js/profesor.js" type="text/javascript"></script>
+	<script src="js/form.js" type="text/javascript"></script>
 	<title>Scheduler</title>
 </head>
 <body>
@@ -22,13 +21,13 @@
 	<div class="form">
 	<h1>Agregar profesor</h1>
 	<!--action="profesor_add.php"-->
-	<form id="profesor_form" method="post">
+	<form class="formulario" id="profesor_form" method="post">
 		<div class="top-row">
 			<div class="field-wrap">
 				<label>Id profesor:<span class="req">*</span></label><input id="id" type="text" required autocomplete="off" />
 			</div>
 			<div class="field-wrap">
-				<button class="button button-block"/>buscar</button>
+				<button id="buscar" class="button button-block"/>buscar</button>
 			</div>
 		</div>
 		<div class="top-row">
@@ -70,16 +69,14 @@
 		<div id="letrero"></div>
 		<div class="top-row">
 			<div class="field-wrap">
-				<button class="button button-block"/>eliminar</button>
+				<button id="eliminar" class="button button-block"/>eliminar</button>
 			</div>
 			<div class="field-wrap">
 				<input type="submit" class="button button-block" value="Agregar"/>
 			</div>
 		</div>
 	</form>
-	
-
-	
+		
 
 	<!--
 	alert-success
@@ -92,4 +89,6 @@
 <script>
 tabSelected("#profesor");
 </script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="js/forms_after.js" type="text/javascript"></script>
 <html>
