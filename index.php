@@ -1,3 +1,9 @@
+<?php
+include('config.php');
+include('functions.php');
+
+session_start();
+?>
 <!doctype html>
 <html lang=''>
 <head>
@@ -15,6 +21,15 @@
 <div>
 <?php include 'tabs.php' ?>
 </div>
+<?php 
+$res = login_check();
+error_log($res);
+if ($res==true){
+	header('Location: profesor.php');
+}else{
+	header('Location: login.php');
+} 
+?>
 
 </body>
 <script>
