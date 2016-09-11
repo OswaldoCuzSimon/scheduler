@@ -42,9 +42,7 @@ $(function(){
     $(target).fadeIn(600);
     
   });
-  function cerrar() {
-    $(this).parent().remove();
-    console.log(e);
-  }
+  
+
   
 });

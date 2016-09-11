@@ -5,11 +5,13 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link rel="stylesheet" href="css/table.css">
+	
 	<link rel="stylesheet" href="css/forms.css">
+	<link rel="stylesheet" href="css/table.css">
+	
+
 	<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
 	<script src="js/tabs.js" type="text/javascript"></script>
-	
 	<script src="js/table.js" type="text/javascript"></script>
 	<script src="js/profesor.js" type="text/javascript"></script>
 	<script src="js/form.js" type="text/javascript"></script>
