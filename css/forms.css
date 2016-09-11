@@ -73,8 +73,7 @@ h1 {
   font-weight: 300;
   margin: 0 0 40px;
 }
-
-label {
+label,p{
   position: absolute;
   -webkit-transform: translateY(6px);
           transform: translateY(6px);
@@ -85,6 +84,9 @@ label {
   -webkit-backface-visibility: hidden;
   pointer-events: none;
   font-size: 22px;
+}
+th,p,td{
+  position: relative;
 }
 label .req {
   margin: 2px;
@@ -178,6 +180,8 @@ textarea {
   text-align: right;
 }
 .select-style {
+  position: relative;
+  left: 20px;
     padding: 0;
     margin: 0;
     margin-left: 210px;
@@ -205,7 +209,13 @@ textarea {
 .select-style select:focus {
     outline: none;
 }
-#carreras{
+.select-text{
+  position: relative;
 	margin-left: 110px;
-	width: 110px;
+	width: 50%;
+
+}
+.select-num{
+  position: relative;
+  width: 50px;
 }
