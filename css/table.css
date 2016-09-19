@@ -45,10 +45,11 @@ body {
 table {
   font-family: 'Open Sans', Helvetica;
   color: #efefef;
+  width: 100%;
 }
 .tab{
   height: 500px;
-  width: 40em;
+  width: 100%;
 }
 table tr:nth-child(2n) {
   background: #eff0f1;
