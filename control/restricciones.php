@@ -20,11 +20,11 @@ function couples($callback,$grupos) {
 	}
 	return $violat;
 }
-$grupos = [1,2,3,5,6];
+/*$grupos = [1,2,3,5,6];
 echo couples(function($c1,$c2){
 	echo $c1." ".$c2."<br>";
 	return $c1;
-},$grupos);
+},$grupos);*/
 class Restrcciones{
 	private $numcursos;
 	private $numprof;
@@ -57,9 +57,22 @@ class Restrcciones{
 		$this->numcursos	= $uea;
 		$this->numprof	= $profesor;
 		$this->numdias	= 5;
-		$this->prefProfHoras = $uea;
-		$this->prefProfCursos = $profesor;
+		$this->prefProfCursos = $uea;
+		$this->prefProfHoras = [];
 		$this->grupos = [[0,1,2,3,4]];
+
+		for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
+			for ($dia=0; $dia < $this->numdias; $dia++) {
+				$this->prefProfHoras[1][$hora][$dia]=0;
+				$this->prefProfHoras[2][$hora][$dia]=0;
+				if($hora<=2){
+					$this->prefProfHoras[1][$hora][$dia]=1;
+				}
+				if(2<=$hora && $hora <=5 && 1<=$dia && $dia<=3){
+					$this->prefProfHoras[2][$hora][$dia]=1;
+				}
+			}
+		}
 	}
 	/**
 	 * @param int $number numero decimal
@@ -201,11 +214,77 @@ class Restrcciones{
 		return $violat;
 		
 	}
-	public function calcularCargaHoras($horario_profesor){
-		
+	public function cargaAcademica($horarios){
+		$horario_profesores = $this->groupby('profesor',$horarios);
+		$violat = 0;
+		foreach ($horario_profesores as $prof => $cursos_profesor) {
+			$carga = $this->calcularCargaHoras($cursos_profesor);//se calcula las horas que imparte clase a la semana
+			if($carga==0)
+				$violat += 1;
+		}
+		// cacula la diferencia para saber si un profesor se quedo sin asignar curso
+		return $violat;
+		$violat = $numprof - sizeof($horario_profesores); 
 	}
-	public function preferenciaProfesores($horario_profesor){
+	public function calcularCargaHoras($cursos_profesor){
+		$carga = 0;
+		foreach ($cursos_profesor as $curso) {
+			for ($dia=0; $dia < $numdias; $dia++) { 
+				$carga += $curso[$dia][1];
+			}
+		}
 		
+		return $carga;
+	}
+	public function preferenciaProfesores($horarios){
+		$horario_profesores = $this->groupby('profesor',$horarios);
+		$violat = 0;
+		$this->print_horario($this->prefProfHoras[1]);
+		$this->print_horario($this->prefProfHoras[2]);
+		foreach ($horario_profesores as $prof =>$cursos_profesor) {
+			$horario_prof = $this->horarioToMatriz($cursos_profesor);
+			$this->print_horario($horario_prof);
+			for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
+				for ($dia=0; $dia < $this->numdias; $dia++) { 
+					$wants = $this->prefProfHoras[$prof][$hora][$dia];
+					if($wants==0 && $horario_prof[$hora][$dia]==1){
+						echo sprintf("%d %d<br>",$hora,$dia);
+						$violat += 1;
+					}
+				}
+			}
+		}
+		return $violat;
+	}
+	public function horarioToMatriz($cursos_profesor){
+		$horario = [];
+		for ($dia=0; $dia < $this->numdias; $dia++) { 
+			for ($hora=0; $hora < $this->HORA_MAX; $hora++) { 
+				$horario[$hora][$dia]=0;
+			}
+		}
+		foreach ($cursos_profesor as $curso) {
+			for ($dia=0; $dia < $this->numdias; $dia++) { 
+				for ($i=$curso[$dia][0]; $i < $curso[$dia][0]+$curso[$dia][1]; $i++) { 
+					$horario[$i][$dia] = 1;
+				}
+			}
+		}
+		return $horario;
+	}
+	public function print_horario($horario){
+		echo "l m m j v<br>";
+		//$horas = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
+		//'13:00', '14:00', '15:00','16:00','17:00','18:00','19:00'];
+
+
+		for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
+			$row = "";//$horas[$hora].' ';
+			for ($dia=0; $dia < $this->numdias; $dia++) { 
+				$row .= $horario[$hora][$dia].' ';
+			}
+			echo $row."<br>";
+		}
 	}
 }
 ?>
