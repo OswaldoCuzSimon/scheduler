@@ -1,16 +1,4 @@
 <?php
-function arrayCopy( array $array ) {
-        $result = array();
-        foreach( $array as $key => $val ) {
-            if( is_array( $val ) ) {
-                $result[$key] = arrayCopy( $val );
-            } elseif ( is_object( $val ) ) {
-                $result[$key] = clone $val;
-            } else {
-                $result[$key] = $val;
-            }
-        }
-}
 function couples($callback,$grupos) {
 	$violat=0;
 	for ($c1=0; $c1 < sizeof($grupos)-1; $c1++) { 
@@ -20,11 +8,6 @@ function couples($callback,$grupos) {
 	}
 	return $violat;
 }
-/*$grupos = [1,2,3,5,6];
-echo couples(function($c1,$c2){
-	echo $c1." ".$c2."<br>";
-	return $c1;
-},$grupos);*/
 class Restrcciones{
 	private $numcursos;
 	private $numprof;
@@ -144,8 +127,21 @@ class Restrcciones{
 		}
 		return $horarios;
 	}
-
-		/**
+	public function consistencia($horarios){
+		$violat = 0;
+		foreach ($horarios as $prof=>$curso){
+			if($curso[$this->numdias]>$this->numprof)
+				$violat++;
+			for ($dia=0; $dia < $this->numdias; $dia++) {
+				if($curso[$dia][1]!=0 && ($curso[$dia][0]+$curso[$dia][1] >= $this->HORA_MAX) ){
+					$violat+=max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX);
+					//echo $prof." ".$dia." ".max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX)."<br>";
+				}
+			}
+		}
+		return $violat;
+	}
+	/**
 	 * cacula el peso de la violacion si hay varios cursos asignados al mismo tiempo a un profesor
 	 * @param int[][][] $horario_profesor El horario de un profesor
 	 * @return int El peso de la violacion
