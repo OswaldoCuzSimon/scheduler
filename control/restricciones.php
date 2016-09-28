@@ -16,6 +16,7 @@ class Restrcciones{
 	private $prefProfCursos;
 	private $profUEA;
 	private $grupos;
+	private $ueaCursos;
 	private $BITS = 39;
 	private $HORA_MAX=13;
 
@@ -34,15 +35,16 @@ class Restrcciones{
 		for ($i=0; $i < $numprof; $i++) { 
 			$this->prefProfHoras[$i] = $profesor[$i]->getAvailability;
 		}
-		$this->prefProfCursos = $profUEA;
+		$this->prefProfUEA = $profUEA;
 	}*/
 	public function __construct($uea,$profesor,$profUEA){
 		$this->numcursos	= $uea;
 		$this->numprof	= $profesor;
 		$this->numdias	= 5;
-		$this->prefProfCursos = $uea;
+		$this->prefProfUEA = [[0,1],[2,3],[0,2,4],[0,1],[2,3]];
 		$this->prefProfHoras = [];
 		$this->grupos = [[0,1,2,3,4]];
+		$this->ueaCursos = [0,1,1,2,4];
 
 		for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
 			for ($dia=0; $dia < $this->numdias; $dia++) {
@@ -127,37 +129,36 @@ class Restrcciones{
 		}
 		return $horarios;
 	}
-	public function consistencia($horarios){
-		$violat = 0;
-		foreach ($horarios as $prof=>$curso){
-			if($curso[$this->numdias]>$this->numprof)
-				$violat++;
-			for ($dia=0; $dia < $this->numdias; $dia++) {
-				if($curso[$dia][1]!=0 && ($curso[$dia][0]+$curso[$dia][1] >= $this->HORA_MAX) ){
-					$violat+=max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX);
-					//echo $prof." ".$dia." ".max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX)."<br>";
+	public function horarioToMatriz($cursos_profesor){
+		$horario = [];
+		for ($dia=0; $dia < $this->numdias; $dia++) { 
+			for ($hora=0; $hora < $this->HORA_MAX; $hora++) { 
+				$horario[$hora][$dia]=0;
+			}
+		}
+		foreach ($cursos_profesor as $curso) {
+			for ($dia=0; $dia < $this->numdias; $dia++) { 
+				for ($i=$curso[$dia][0]; $i < $curso[$dia][0]+$curso[$dia][1]; $i++) { 
+					$horario[$i][$dia] = 1;
 				}
 			}
 		}
-		return $violat;
+		return $horario;
 	}
-	/**
-	 * cacula el peso de la violacion si hay varios cursos asignados al mismo tiempo a un profesor
-	 * @param int[][][] $horario_profesor El horario de un profesor
-	 * @return int El peso de la violacion
-	 *///3 bytes para horas, 4 para hora de inicio 5 por profesor,
-	public function unCursoAlaVez($horarios){
-		$horario_profesor = $this->groupby('profesor',$horarios);
-		$violat = 0;
+	public function print_horario($horario){
+		echo "l m m j v<br>";
+		//$horas = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
+		//'13:00', '14:00', '15:00','16:00','17:00','18:00','19:00'];
 
-		foreach ($horario_profesor as $horario) {
-			$violat += couples(function($c1,$c2){
-				return $this->traslape($c1,$c2);
-			},$horario);
+
+		for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
+			$row = "";//$horas[$hora].' ';
+			for ($dia=0; $dia < $this->numdias; $dia++) { 
+				$row .= $horario[$hora][$dia].' ';
+			}
+			echo $row."<br>";
 		}
-		return $violat;//var_dump($horario_profesor);
 	}
-
 	public function traslape($c1,$c2){
 		$violat = 0;
 		for ($dia=0; $dia < $this->numdias; $dia++) {
@@ -197,6 +198,36 @@ class Restrcciones{
 		}
 
 		return max(0,($b1-$a2) );
+	}
+	public function consistencia($horarios){
+		$violat = 0;
+		foreach ($horarios as $prof=>$curso){
+			if($curso[$this->numdias]>$this->numprof)
+				$violat++;
+			for ($dia=0; $dia < $this->numdias; $dia++) {
+				if($curso[$dia][1]!=0 && ($curso[$dia][0]+$curso[$dia][1] >= $this->HORA_MAX) ){
+					$violat+=max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX);
+					//echo $prof." ".$dia." ".max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX)."<br>";
+				}
+			}
+		}
+		return $violat;
+	}
+	/**
+	 * cacula el peso de la violacion si hay varios cursos asignados al mismo tiempo a un profesor
+	 * @param int[][][] $horario_profesor El horario de un profesor
+	 * @return int El peso de la violacion
+	 *///3 bytes para horas, 4 para hora de inicio 5 por profesor,
+	public function unCursoAlaVez($horarios){
+		$horario_profesor = $this->groupby('profesor',$horarios);
+		$violat = 0;
+
+		foreach ($horario_profesor as $horario) {
+			$violat += couples(function($c1,$c2){
+				return $this->traslape($c1,$c2);
+			},$horario);
+		}
+		return $violat;//var_dump($horario_profesor);
 	}
 	public function traslapeGrupo($horarios){
 		$horario_grupo = $this->groupby('grupo',$horarios);
@@ -252,35 +283,32 @@ class Restrcciones{
 		}
 		return $violat;
 	}
-	public function horarioToMatriz($cursos_profesor){
-		$horario = [];
-		for ($dia=0; $dia < $this->numdias; $dia++) { 
-			for ($hora=0; $hora < $this->HORA_MAX; $hora++) { 
-				$horario[$hora][$dia]=0;
-			}
-		}
-		foreach ($cursos_profesor as $curso) {
-			for ($dia=0; $dia < $this->numdias; $dia++) { 
-				for ($i=$curso[$dia][0]; $i < $curso[$dia][0]+$curso[$dia][1]; $i++) { 
-					$horario[$i][$dia] = 1;
+	public function preferenciaUEA($horarios){
+		$violat = 0;
+		foreach ($horarios as $id_curso => $curso) {
+			
+			if(array_key_exists($curso[$this->numdias],$this->prefProfUEA) ){
+				$prefprofesor = $this->prefProfUEA[$curso[$this->numdias] ];
+				if(!in_array($this->ueaCursos[$id_curso],$prefprofesor) ){
+					$violat++;
+					echo $curso[$this->numdias]." ".$this->ueaCursos[$id_curso]."<br>";
 				}
 			}
 		}
-		return $horario;
+		var_dump($this->prefProfUEA);
+		var_dump($this->ueaCursos);
+		return $violat;
 	}
-	public function print_horario($horario){
-		echo "l m m j v<br>";
-		//$horas = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
-		//'13:00', '14:00', '15:00','16:00','17:00','18:00','19:00'];
-
-
-		for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
-			$row = "";//$horas[$hora].' ';
-			for ($dia=0; $dia < $this->numdias; $dia++) { 
-				$row .= $horario[$hora][$dia].' ';
-			}
-			echo $row."<br>";
-		}
+	public function fitness($horarios){
+		$rank = 0;
+		// hard Constraints
+		$rank += $this->consistencia($horarios) + $this->unCursoAlaVez($horarios) +
+		$this->traslapeGrupo($horarios) + $this->cargaAcademica($horarios) +
+		$this->preferenciaProfesores($horarios);
+		$rank = 2*$rank;
+		// soft Constraints
+		$rank += $this->preferenciaUEA($horarios);
+		return $rank;
 	}
 }
 ?>
