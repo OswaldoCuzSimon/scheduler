@@ -4,6 +4,7 @@
 		private $profesor_id;
 		private $nombre;
 		private $cargaAcademica;
+		private $usuario_id;
 
 		/*public function __construct1($profesor_id, $nombre, $cargaAcademica,$availability){
 			$this->getProfesor_id	= $profesor_id;
@@ -11,10 +12,11 @@
 			$this->cargaAcademica	= $cargaAcademica;
 			$this->availability 	= $availability;
 		}*/
-		public function __construct($profesor_id, $nombre, $cargaAcademica){
+		public function __construct($profesor_id, $usuario_id,$nombre, $cargaAcademica){
 			$this->profesor_id	= $profesor_id;
 			$this->nombre		= $nombre;
 			$this->cargaAcademica	= $cargaAcademica;
+			$this->usuario_id 	= $usuario_id; 
 		}
 
 		public function getAvailability(){
@@ -48,6 +50,13 @@
 		public function setCargaAcademica($cargaAcademica){
 			$this->cargaAcademica = $cargaAcademica;
 		}
+		public function getUsuario_id(){
+			return $this->usuario_id;
+		}
+
+		public function setUsuario_id($creditos){
+			$this->usuario_id = $usuario_id;
+		}
 	}
 
 	class UEA {
@@ -62,7 +71,39 @@
 		private $seriacion;
 		private $dias;
 		private $esObligatoria;
+		private $creditos;
+		private $usuario_id;
 
+		public function __construct($clave,$usuario_id,$nombre,$cupo,$horasSemana,$nivel,
+			$trimestre,$esObligatoria,$creditos){
+			$this->clave 		= $clave;
+			$this->usuario_id	= $usuario_id;
+			$this->nombre 		= $nombre;
+			$this->cupo 		= $cupo;
+			$this->horasSemana 	= $horasSemana;
+			$this->nivel 		= $nivel;
+			$this->trimestre 	= $trimestre;
+			$this->esObligatoria= $esObligatoria;
+			$this->creditos		= $creditos;
+		}
+		public function __construct1($clave,$usuario_id,$nombre,$cupo,$horasSemana,$nivel,
+			$trimestre,$esObligatoria,$creditos,$carrera,$grupo,$seriacion,$dias){
+			$this->clave 		= $clave;
+			$this->usuario_id	= $usuario_id;
+			$this->nombre 		= $nombre;
+			$this->cupo 		= $cupo;
+			$this->horasSemana 	= $horasSemana;
+			$this->nivel 		= $nivel;
+			$this->trimestre 	= $trimestre;
+			$this->esObligatoria= $esObligatoria;
+			$this->creditos		= $creditos;
+
+			$this->carrera 		= $carrera;
+			
+			$this->grupo 		= $grupo;
+			$this->seriacion 	= $seriacion;
+			$this->dias 		= $seriacion;
+		}
 		public function getClave(){
 			return $this->clave;
 		}
@@ -149,6 +190,20 @@
 
 		public function setEsObligatoria($esObligatoria){
 			$this->esObligatoria = $esObligatoria;
+		}
+		public function getCreditos(){
+			return $this->creditos;
+		}
+
+		public function setCreditos($creditos){
+			$this->creditos = $creditos;
+		}
+		public function getUsuario_id(){
+			return $this->usuario_id;
+		}
+
+		public function setUsuario_id($creditos){
+			$this->usuario_id = $usuario_id;
 		}
 	}
 ?>
