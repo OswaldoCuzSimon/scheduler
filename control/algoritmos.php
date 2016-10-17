@@ -24,6 +24,7 @@ class Genetic{
 	private $size_pob;
 	private $PROB_MUT;
 	private $restric;
+	private $num_repeat;
 
 	public function __construct($BITS,$numcursos,$size_pob,$PROB_MUT,$restric){
 		$this->BITS=$BITS;
@@ -78,12 +79,14 @@ class Genetic{
 
 		
 		$new_pob = [];
+		//Elitismo
+		$new_pob[] = $this->elitismo($poblacion);
 		for ($i=0; $i < $this->size_pob; $i+=2) { 
 			$parent1 = $poblacion[$ruleta[rand(0,$rulSize)] ];
 			$parent2 = $poblacion[$ruleta[rand(0,$rulSize)] ];
 			$children = $this->cruza($parent1,$parent2);
-			$new_pob[]=$children[0];
-			$new_pob[]=$children[1];
+			$new_pob[]=$this->mutacion( $children[0] );
+			$new_pob[]=$this->mutacion( $children[1] );
 		}
 		return $new_pob;
 	}
@@ -100,7 +103,6 @@ class Genetic{
 
 		for ($i=0; $i < sizeof($gen1); $i++) { 
 			$prob = mt_rand() / mt_getrandmax();
-
 			if($prob<=$this->PROB_MUT){
 				$gen1[$i] = ($gen1[$i] + 1) / 2;
 			}
@@ -108,7 +110,11 @@ class Genetic{
 		return $gen1;
 	}
 	function calcula(){
-
+		$poblacion = $this->generarPoblacion($this->size_pob);
+		for ($i=0; $i < $this->num_repeat; $i++) { 
+			$poblacion = $this->seleccion($poblacion);
+			
+		}
 	}
 	function generarPoblacion($size){
 		$pob = [];
@@ -126,8 +132,9 @@ class Genetic{
 		}
 		return $array;
 	}
-	function elitismo(){
-
+	function elitismo($poblacion){
+		foreach ($poblacion as $key => $value)
+			return $value;
 	}
 }
 
