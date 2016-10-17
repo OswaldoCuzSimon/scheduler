@@ -1,6 +1,7 @@
 <?php
 function couples($callback,$grupos) {
 	$violat=0;
+	$grupos = array_values($grupos);
 	for ($c1=0; $c1 < sizeof($grupos)-1; $c1++) { 
 		for ($c2=$c1+1; $c2 < sizeof($grupos); $c2++) { 
 			$violat += $callback($grupos[$c1],$grupos[$c2]); //$this->traslape($grupo[$c1],$grupo[$c2]);
@@ -19,6 +20,7 @@ class Restrcciones{
 	private $ueaCursos;
 	private $BITS = 39;
 	private $HORA_MAX=13;
+	private $duracion;
 
 	/**
 	 *@param UEA[] $uea Arreglo de ueas
@@ -38,23 +40,36 @@ class Restrcciones{
 		$this->prefProfUEA = $profUEA;
 	}*/
 	public function __construct($uea,$profesor,$profUEA){
+		/*
+		 *prefProfUEA arreglo bidimensional de tamaño numprof
+		 * prefProfHoras arreglo de tamaño numprof, cada entra es una matriz HORA_MAX*numdias 
+		 * grupos arreglo de tamaño numero de grupos
+		 * duracion arreglo de tamaño numcursos indica la duracion semanal del curso
+		 */
 		$this->numcursos	= $uea;
 		$this->numprof	= $profesor;
 		$this->numdias	= 5;
 		$this->prefProfUEA = [[0,1],[2,3],[0,2,4],[0,1],[2,3]];
 		$this->prefProfHoras = [];
-		$this->grupos = [[0,1,2,3,4]];
+		$this->grupos = [ [0,1], [2,3], [4] ];
 		$this->ueaCursos = [0,1,1,2,4];
-
+		$this->duracion = [5,5,5,5,5];
 		for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
 			for ($dia=0; $dia < $this->numdias; $dia++) {
+				$this->prefProfHoras[0][$hora][$dia]=0;
 				$this->prefProfHoras[1][$hora][$dia]=0;
 				$this->prefProfHoras[2][$hora][$dia]=0;
+				$this->prefProfHoras[3][$hora][$dia]=0;
+				$this->prefProfHoras[4][$hora][$dia]=0;
+				
 				if($hora<=2){
+					$this->prefProfHoras[0][$hora][$dia]=1;
 					$this->prefProfHoras[1][$hora][$dia]=1;
+					$this->prefProfHoras[2][$hora][$dia]=1;
 				}
 				if(2<=$hora && $hora <=5 && 1<=$dia && $dia<=3){
-					$this->prefProfHoras[2][$hora][$dia]=1;
+					$this->prefProfHoras[3][$hora][$dia]=1;
+					$this->prefProfHoras[4][$hora][$dia]=1;
 				}
 			}
 		}
@@ -107,12 +122,12 @@ class Restrcciones{
 	public function groupby($clase, $horarios){
 		if ($clase == 'profesor') {
 			$horario_profesor = [];
-			for ($prof=0; $prof < $this->numprof; $prof++) { 
+			//for ($prof=0; $prof < $this->numprof; $prof++) {
+			for ($prof=0; $prof < 16; $prof++) { 
 				$aux =array_filter($horarios, function($horario) use($prof){
 					return($horario[$this->numdias] == $prof);
 				});
-				//var_dump($aux);
-				if($aux != null){
+				if($aux != null  && sizeof($aux)>1 ){
 					$horario_profesor[$prof] = $aux;
 				}
 			}
@@ -126,6 +141,7 @@ class Restrcciones{
 				}
 				$horario_grupo[] = $aux;
 			}// agrupa por grupos XD
+			return $horario_grupo;
 		}
 		return $horarios;
 	}
@@ -173,7 +189,6 @@ class Restrcciones{
 			if($c1[$dia][1]!=0 && $c2[$dia][1]!=0){
 				$inter = $this->interseccion( $c1[$dia][0],$c1[$dia][0]+$c1[$dia][1], $c2[$dia][0],$c2[$dia][0]+$c2[$dia][1] ); 
 				if( $inter ){
-					echo sprintf("dia: %d hora: %d<br>",$dia,$inter);
 					$violat += $inter;
 				}
 			}
@@ -191,7 +206,6 @@ class Restrcciones{
 			$b1 = $b2;
 			$b2 = $c;
 		}
-		//echo sprintf("[$a1,$b1] [$a2,$b2]<br>");
 		if( ($a1 <= $a2 && $a2 <= $b1) &&
 			($a1 <= $b2 && $b2 <= $b1) ){
 			return abs($b2-$a2);
@@ -207,7 +221,6 @@ class Restrcciones{
 			for ($dia=0; $dia < $this->numdias; $dia++) {
 				if($curso[$dia][1]!=0 && ($curso[$dia][0]+$curso[$dia][1] >= $this->HORA_MAX) ){
 					$violat+=max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX);
-					//echo $prof." ".$dia." ".max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX)."<br>";
 				}
 			}
 		}
@@ -227,7 +240,7 @@ class Restrcciones{
 				return $this->traslape($c1,$c2);
 			},$horario);
 		}
-		return $violat;//var_dump($horario_profesor);
+		return $violat;
 	}
 	public function traslapeGrupo($horarios){
 		$horario_grupo = $this->groupby('grupo',$horarios);
@@ -237,7 +250,6 @@ class Restrcciones{
 				return $this->traslape($c1,$c2);
 			},$grupo);
 		}
-		//var_dump($horario_grupo);
 		return $violat;
 		
 	}
@@ -256,7 +268,7 @@ class Restrcciones{
 	public function calcularCargaHoras($cursos_profesor){
 		$carga = 0;
 		foreach ($cursos_profesor as $curso) {
-			for ($dia=0; $dia < $numdias; $dia++) { 
+			for ($dia=0; $dia < $this->numdias; $dia++) { 
 				$carga += $curso[$dia][1];
 			}
 		}
@@ -266,16 +278,20 @@ class Restrcciones{
 	public function preferenciaProfesores($horarios){
 		$horario_profesores = $this->groupby('profesor',$horarios);
 		$violat = 0;
-		$this->print_horario($this->prefProfHoras[1]);
-		$this->print_horario($this->prefProfHoras[2]);
+		//$this->print_horario($this->prefProfHoras[1]);
+		//$this->print_horario($this->prefProfHoras[2]);
 		foreach ($horario_profesores as $prof =>$cursos_profesor) {
 			$horario_prof = $this->horarioToMatriz($cursos_profesor);
-			$this->print_horario($horario_prof);
+			//$this->print_horario($horario_prof);
 			for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
-				for ($dia=0; $dia < $this->numdias; $dia++) { 
+				for ($dia=0; $dia < $this->numdias; $dia++) {
+					if(!array_key_exists($prof,$this->prefProfHoras) || 
+						!array_key_exists($hora,$this->prefProfHoras[$prof]) || 
+						!array_key_exists($dia,$this->prefProfHoras[$prof][$hora]) ){
+						continue;
+					}
 					$wants = $this->prefProfHoras[$prof][$hora][$dia];
 					if($wants==0 && $horario_prof[$hora][$dia]==1){
-						echo sprintf("%d %d<br>",$hora,$dia);
 						$violat += 1;
 					}
 				}
@@ -283,32 +299,31 @@ class Restrcciones{
 		}
 		return $violat;
 	}
+	public function duracionCursos($horarios){
+		$violat = 0;
+		foreach ($horarios as $key => $curso) {
+			$duracion = 0;
+			for ($dia=0; $dia < $this->numdias; $dia++) { 
+				$duracion += $curso[$dia][1];
+			}
+			$violat += $duracion == $this->duracion ? 0:1;
+		}
+		return $violat;
+	}
 	public function preferenciaUEA($horarios){
 		$violat = 0;
+		//var_dump($ueaCursos);
 		foreach ($horarios as $id_curso => $curso) {
 			
 			if(array_key_exists($curso[$this->numdias],$this->prefProfUEA) ){
 				$prefprofesor = $this->prefProfUEA[$curso[$this->numdias] ];
 				if(!in_array($this->ueaCursos[$id_curso],$prefprofesor) ){
 					$violat++;
-					echo $curso[$this->numdias]." ".$this->ueaCursos[$id_curso]."<br>";
 				}
 			}
 		}
-		var_dump($this->prefProfUEA);
-		var_dump($this->ueaCursos);
 		return $violat;
 	}
-	public function fitness($horarios){
-		$rank = 0;
-		// hard Constraints
-		$rank += $this->consistencia($horarios) + $this->unCursoAlaVez($horarios) +
-		$this->traslapeGrupo($horarios) + $this->cargaAcademica($horarios) +
-		$this->preferenciaProfesores($horarios);
-		$rank = 2*$rank;
-		// soft Constraints
-		$rank += $this->preferenciaUEA($horarios);
-		return $rank;
-	}
+
 }
 ?>
