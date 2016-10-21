@@ -77,18 +77,10 @@ class Genetic{
 			$ruleta = array_pad($ruleta, $rulSize, $el);
 		}
 
-		
-		$new_pob = [];
-		//Elitismo
-		$new_pob[] = $this->elitismo($poblacion);
-		for ($i=0; $i < $this->size_pob; $i+=2) { 
-			$parent1 = $poblacion[$ruleta[rand(0,$rulSize)] ];
-			$parent2 = $poblacion[$ruleta[rand(0,$rulSize)] ];
-			$children = $this->cruza($parent1,$parent2);
-			$new_pob[]=$this->mutacion( $children[0] );
-			$new_pob[]=$this->mutacion( $children[1] );
-		}
-		return $new_pob;
+		$parent1 = $poblacion[$ruleta[rand(0,$rulSize)] ];
+		$parent2 = $poblacion[$ruleta[rand(0,$rulSize)] ];
+
+		return [$parent1,$parent2];
 	}
 	
 	public function cruza($indi1, $indi2){
@@ -111,10 +103,19 @@ class Genetic{
 	}
 	function calcula(){
 		$poblacion = $this->generarPoblacion($this->size_pob);
-		for ($i=0; $i < $this->num_repeat; $i++) { 
-			$poblacion = $this->seleccion($poblacion);
-			
+		for ($t=0; $t < $this->num_repeat; $t++) { 
+			$new_pob = [];
+			//Elitismo
+			$new_pob[] = $this->elitismo($poblacion);
+			while( sizeof($new_pob) < $this->size_pob ) { 
+				$parent= $this->seleccion($poblacion);
+				$children = $this->cruza($parent[0],$parent[1]);
+				$new_pob[]=$this->mutacion( $children[0] );
+				$new_pob[]=$this->mutacion( $children[1] );
+			}
+			$poblacion = $new_pob;
 		}
+		return $poblacion;
 	}
 	function generarPoblacion($size){
 		$pob = [];
