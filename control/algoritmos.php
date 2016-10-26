@@ -1,5 +1,6 @@
 <?php
 include 'restricciones.php';
+include '../model/modelo.php';
 function array_reverse_keys($ar){
 	return array_reverse(array_reverse($ar,true),false);
 }
@@ -115,7 +116,13 @@ class Genetic{
 			}
 			$poblacion = $new_pob;
 		}
-		return $poblacion;
+		$ranks = [];
+
+		foreach ($poblacion as $key =>$individuo) {
+			$ranks[] = $this->fitness($individuo);
+			//$ranks[] = $key;
+		}
+		return [$poblacion,$ranks];
 	}
 	function generarPoblacion($size){
 		$pob = [];
@@ -138,13 +145,23 @@ class Genetic{
 			return $value;
 	}
 }
+$modelo = new Modelo();
+$uea = $modelo->getUEA(1);
+$profesores = $modelo->getProfesores(1);
+$profuea = $modelo->getProfesorUEA(1);
 
+
+var_dump($uea);
+var_dump($profesores);
+var_dump($profuea);
+/*
 $restric = new Restrcciones(5,5,0);
 $genetic = new Genetic(39,5,5,0.0001,$restric);
 /*$gen1 = [[[1,2,3],[4,5,6],[7,8,9]],[[10,11,12],[13,14,15],[16,17,18]],[[19,20,21],[22,23,24],[25,26,27]]];
 $gen2 = [[[28,29,30],[31,32,33],[34,35,36]],[[37,38,39],[40,41,42],[43,44,45]],[[46,47,48],[49,50,51],[52,53,54]]];
 
 $genetic->cruza($gen1,$gen2);*/
-
+/*
 $pob = $genetic->generarPoblacion(3);
-$genetic->seleccion($pob);
+$result = $genetic->calcula($pob);
+var_dump( $result[1]);*/

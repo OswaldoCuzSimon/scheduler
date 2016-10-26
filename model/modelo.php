@@ -1,4 +1,5 @@
 <?php
+include '../control/clases.php'; 
 class Modelo{
 	public function addProfesor($profesor,$usuario_id){
 		include ("config.php");
@@ -231,8 +232,8 @@ class Modelo{
 	}
 }
 
-include '../control/clases.php';
-$modelo = new Modelo();
+
+/*$modelo = new Modelo();
 /*
 $profesor = new Profesor(100,1,'Alarcon',3);
 if(!$modelo->addProfesor($profesor,1)){
@@ -252,7 +253,6 @@ $uea->setNombre('bases de datos');
 $modelo->updateUEA($uea);
 */
 
-var_dump($modelo->getProfesorUEA(1) );
 
 
 ?>
