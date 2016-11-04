@@ -13,14 +13,14 @@ class Restrcciones{
 	private $numcursos;
 	private $numprof;
 	private $numdias;
+	private $prefProfUEA;
 	private $prefProfHoras;
-	private $prefProfCursos;
-	private $profUEA;
 	private $grupos;
 	private $ueaCursos;
+	private $duracion;
 	private $BITS = 39;
 	private $HORA_MAX=13;
-	private $duracion;
+	
 
 	/**
 	 *@param UEA[] $uea Arreglo de ueas
@@ -39,40 +39,30 @@ class Restrcciones{
 		}
 		$this->prefProfUEA = $profUEA;
 	}*/
-	public function __construct($uea,$profesor,$profUEA){
+	public function __construct($cursos,$profesores,$profUEA,$grupos){
 		/*
 		 *prefProfUEA arreglo bidimensional de tamaño numprof
 		 * prefProfHoras arreglo de tamaño numprof, cada entra es una matriz HORA_MAX*numdias 
 		 * grupos arreglo de tamaño numero de grupos
 		 * duracion arreglo de tamaño numcursos indica la duracion semanal del curso
 		 */
-		$this->numcursos	= $uea;
-		$this->numprof	= $profesor;
+		$this->numcursos	= sizeof($cursos);
+		$this->numprof	= sizeof($profesores);
 		$this->numdias	= 5;
-		$this->prefProfUEA = [[0,1],[2,3],[0,2,4],[0,1],[2,3]];
+		$this->prefProfUEA = $profUEA;
 		$this->prefProfHoras = [];
-		$this->grupos = [ [0,1], [2,3], [4] ];
-		$this->ueaCursos = [0,1,1,2,4];
-		$this->duracion = [5,5,5,5,5];
-		for ($hora=0; $hora < $this->HORA_MAX; $hora++) {
-			for ($dia=0; $dia < $this->numdias; $dia++) {
-				$this->prefProfHoras[0][$hora][$dia]=0;
-				$this->prefProfHoras[1][$hora][$dia]=0;
-				$this->prefProfHoras[2][$hora][$dia]=0;
-				$this->prefProfHoras[3][$hora][$dia]=0;
-				$this->prefProfHoras[4][$hora][$dia]=0;
-				
-				if($hora<=2){
-					$this->prefProfHoras[0][$hora][$dia]=1;
-					$this->prefProfHoras[1][$hora][$dia]=1;
-					$this->prefProfHoras[2][$hora][$dia]=1;
-				}
-				if(2<=$hora && $hora <=5 && 1<=$dia && $dia<=3){
-					$this->prefProfHoras[3][$hora][$dia]=1;
-					$this->prefProfHoras[4][$hora][$dia]=1;
-				}
-			}
+		$this->grupos = $grupos;
+		$this->ueaCursos = [];
+		$this->duracion = [];
+		foreach ($cursos as $id_curso => $curso) {
+			$this->duracion[] = $curso->getHorasSemana();
+			$this->ueaCursos[] = $curso->getClave();
 		}
+		//var_dump($duracion);
+		foreach ($profesores as $profesor_id => $profesor) {
+			$this->prefProfHoras[] = $profesor->getAvailability();
+		}
+		//var_dump($this->prefProfHoras);
 	}
 	/**
 	 * @param int $number numero decimal

@@ -1,16 +1,8 @@
 <?php
-
-
-
-
-
-
 include '../model/modelo.php';
 include 'clases.php';
 include 'restricciones.php';
 include 'algoritmos.php';
-
-
 
 $restric = new Restrcciones(1,16,3);
 $genetic = new Genetic(0,0,0);

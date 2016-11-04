@@ -27,12 +27,13 @@ class Genetic{
 	private $restric;
 	private $num_repeat;
 
-	public function __construct($BITS,$numcursos,$size_pob,$PROB_MUT,$restric){
+	public function __construct($BITS,$numcursos,$size_pob,$PROB_MUT,$num_repeat,$restric){
 		$this->BITS=$BITS;
 		$this->numcursos=$numcursos;
 		$this->size_pob = $size_pob;
 		$this->$PROB_MUT = $PROB_MUT;
 		$this->restric = $restric;
+		$this->$num_repeat = $num_repeat;
 	}
 	function fitness ($individuo){
 		$horarios = $this->restric->toMultiArray($individuo);
@@ -146,22 +147,11 @@ class Genetic{
 	}
 }
 $modelo = new Modelo();
-$uea = $modelo->getUEA(1);
+$cursos = $modelo->getCursos(1);
 $profesores = $modelo->getProfesores(1);
 $profuea = $modelo->getProfesorUEA(1);
+$grupos = $modelo->getGrupos(1);
+$restric = new Restrcciones($cursos,$profesores,$profuea,$grupos);
 
-
-var_dump($uea);
-var_dump($profesores);
-var_dump($profuea);
-/*
-$restric = new Restrcciones(5,5,0);
-$genetic = new Genetic(39,5,5,0.0001,$restric);
-/*$gen1 = [[[1,2,3],[4,5,6],[7,8,9]],[[10,11,12],[13,14,15],[16,17,18]],[[19,20,21],[22,23,24],[25,26,27]]];
-$gen2 = [[[28,29,30],[31,32,33],[34,35,36]],[[37,38,39],[40,41,42],[43,44,45]],[[46,47,48],[49,50,51],[52,53,54]]];
-
-$genetic->cruza($gen1,$gen2);*/
-/*
-$pob = $genetic->generarPoblacion(3);
-$result = $genetic->calcula($pob);
-var_dump( $result[1]);*/
+$genetic = new Genetic(39,sizeof($cursos),10,0.0001,100,$restric);
+var_dump($genetic->calcula());
