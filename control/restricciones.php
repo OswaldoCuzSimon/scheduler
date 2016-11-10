@@ -20,25 +20,12 @@ class Restrcciones{
 	private $duracion;
 	private $BITS = 39;
 	private $HORA_MAX=13;
-	
-
 	/**
-	 *@param UEA[] $uea Arreglo de ueas
+	 *@param UEA[] $cursos Arreglo de ueas
 	 *@param Profesor[] $profesor Arreglo de profesores
 	 *@param int -[][][] $profUEA Matrices de preferencia de los profesores
-	 *
+	 *@param int [][] $grupo arreglo que indica los grupos
 	 */
-	/*public function __construct($uea,$profesor,$profUEA){
-		$this->numcursos	= sizeof($uea);
-		$this->numprof	= sizeof($profesor);
-		$this->numdias	= sizeof($profUEA);
-		$this->prefProfHoras = array();
-
-		for ($i=0; $i < $numprof; $i++) { 
-			$this->prefProfHoras[$i] = $profesor[$i]->getAvailability;
-		}
-		$this->prefProfUEA = $profUEA;
-	}*/
 	public function __construct($cursos,$profesores,$profUEA,$grupos){
 		/*
 		 *prefProfUEA arreglo bidimensional de tamaño numprof
@@ -58,11 +45,9 @@ class Restrcciones{
 			$this->duracion[] = $curso->getHorasSemana();
 			$this->ueaCursos[] = $curso->getClave();
 		}
-		//var_dump($duracion);
 		foreach ($profesores as $profesor_id => $profesor) {
 			$this->prefProfHoras[] = $profesor->getAvailability();
 		}
-		//var_dump($this->prefProfHoras);
 	}
 	/**
 	 * @param int $number numero decimal
@@ -108,6 +93,17 @@ class Restrcciones{
 		}
 		$horario[$this->numdias]=$this->binaryArrayToInt($horario[$this->numdias]);
 		return $horario;
+	}
+	public function withStrKey($horario){
+		$copy = [];
+		$dias = ['lu','ma','mi','ju','vi'];
+
+		for ($d=0; $d < $this->numdias; $d++) {
+			$copy[$dias[$i]]['ini'] = $horario[$d][0];
+			$copy[$dias[$i]]['duraci'] = $horario[$d][1];
+		}
+		$copy['prof'] = $horario[$this->numdias];
+		return $copy;
 	}
 	public function groupby($clase, $horarios){
 		if ($clase == 'profesor') {
@@ -268,8 +264,6 @@ class Restrcciones{
 	public function preferenciaProfesores($horarios){
 		$horario_profesores = $this->groupby('profesor',$horarios);
 		$violat = 0;
-		//$this->print_horario($this->prefProfHoras[1]);
-		//$this->print_horario($this->prefProfHoras[2]);
 		foreach ($horario_profesores as $prof =>$cursos_profesor) {
 			$horario_prof = $this->horarioToMatriz($cursos_profesor);
 			//$this->print_horario($horario_prof);
@@ -304,9 +298,9 @@ class Restrcciones{
 		$violat = 0;
 		//var_dump($ueaCursos);
 		foreach ($horarios as $id_curso => $curso) {
-			
-			if(array_key_exists($curso[$this->numdias],$this->prefProfUEA) ){
-				$prefprofesor = $this->prefProfUEA[$curso[$this->numdias] ];
+			$prof_id = $curso[$this->numdias];
+			if(array_key_exists($prof_id,$this->prefProfUEA) ){
+				$prefprofesor = $this->prefProfUEA[$prof_id];
 				if(!in_array($this->ueaCursos[$id_curso],$prefprofesor) ){
 					$violat++;
 				}

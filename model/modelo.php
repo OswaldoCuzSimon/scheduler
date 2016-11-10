@@ -1,5 +1,5 @@
 <?php
-include '../control/clases.php'; 
+//include '../control/clases.php'; 
 class Modelo{
 	public function addProfesor($profesor,$usuario_id){
 		include ("config.php");

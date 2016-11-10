@@ -75,7 +75,7 @@
 		private $usuario_id;
 
 		public function __construct($clave,$usuario_id,$nombre,$cupo,$horasSemana,$nivel,
-			$trimestre,$esObligatoria,$creditos,$grupo){
+			$trimestre,$esObligatoria,$creditos){
 			$this->clave 		= $clave;
 			$this->usuario_id	= $usuario_id;
 			$this->nombre 		= $nombre;
@@ -85,7 +85,6 @@
 			$this->trimestre 	= $trimestre;
 			$this->esObligatoria= $esObligatoria;
 			$this->creditos		= $creditos;
-			$this->grupo 		= $grupo;
 		}
 		public function __construct1($clave,$usuario_id,$nombre,$cupo,$horasSemana,$nivel,
 			$trimestre,$esObligatoria,$creditos,$carrera,$grupo,$seriacion,$dias){

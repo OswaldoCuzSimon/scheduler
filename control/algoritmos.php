@@ -1,6 +1,6 @@
 <?php
-include 'restricciones.php';
-include '../model/modelo.php';
+//include 'restricciones.php';
+//include '../model/modelo.php';
 function array_reverse_keys($ar){
 	return array_reverse(array_reverse($ar,true),false);
 }
@@ -146,12 +146,3 @@ class Genetic{
 			return $value;
 	}
 }
-$modelo = new Modelo();
-$cursos = $modelo->getCursos(1);
-$profesores = $modelo->getProfesores(1);
-$profuea = $modelo->getProfesorUEA(1);
-$grupos = $modelo->getGrupos(1);
-$restric = new Restrcciones($cursos,$profesores,$profuea,$grupos);
-
-$genetic = new Genetic(39,sizeof($cursos),10,0.0001,100,$restric);
-var_dump($genetic->calcula());
