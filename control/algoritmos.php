@@ -31,15 +31,16 @@ class Genetic{
 		$this->BITS=$BITS;
 		$this->numcursos=$numcursos;
 		$this->size_pob = $size_pob;
-		$this->$PROB_MUT = $PROB_MUT;
+		$this->PROB_MUT = $PROB_MUT;
 		$this->restric = $restric;
-		$this->$num_repeat = $num_repeat;
+		$this->num_repeat = $num_repeat;
 	}
 	function fitness ($individuo){
 		$horarios = $this->restric->toMultiArray($individuo);
 		$horarios = $this->restric->toMultiArrayDec($horarios);
 		$rank = 0;
 		// hard Constraints
+		
 		$rank += $this->restric->consistencia($horarios) + $this->restric->unCursoAlaVez($horarios) +
 		$this->restric->traslapeGrupo($horarios) + $this->restric->cargaAcademica($horarios) +
 		$this->restric->preferenciaProfesores($horarios) + $this->restric->duracionCursos($horarios);
@@ -47,6 +48,19 @@ class Genetic{
 		// soft Constraints
 		$rank += $this->restric->preferenciaUEA($horarios);
 		return $rank;
+	}
+	private function reverseKeys($ranks,$prob_cross){
+		//echo "prob_cross: <br>";
+		//var_dump($prob_cross);
+		$mayor = array_keys($ranks);
+		$menor = array_reverse(array_keys($ranks) );
+		$aux = [];
+		for ($i=0; $i < sizeof($menor); $i++) { 
+			$aux[$menor[$i] ] = $prob_cross[$mayor[$i] ];
+		}
+		//echo "prob_cross: <br>";
+		//var_dump($aux);
+		return $aux;
 	}
 	function seleccion($poblacion){
 		$ranks = [];
@@ -65,11 +79,11 @@ class Genetic{
 		foreach ($ranks as $key => $rank) {
 			$prob_cross[$key] = round( $ranks[$key]/$sum ,$precision );
 		}
-				
+		$prob_cross = $this->reverseKeys($ranks,$prob_cross);
 		$ruleta = [];
 		$rulSize = 10**$precision;
 		foreach ($prob_cross as $idCruso=>$p) {
-			for ($i=0; $i < $p*$precision; $i++) { 
+			for ($i=0; $i < $p*$rulSize; $i++) { 
 				$ruleta[] = $idCruso;
 			}
 		}
@@ -78,9 +92,11 @@ class Genetic{
 			$el = array_pop($ruleta);
 			$ruleta = array_pad($ruleta, $rulSize, $el);
 		}
-
-		$parent1 = $poblacion[$ruleta[rand(0,$rulSize)] ];
-		$parent2 = $poblacion[$ruleta[rand(0,$rulSize)] ];
+		//echo "ruleta size: ".sizeof($ruleta)."<br>";
+		//echo "<br>ruleta:";var_dump(array_count_values($ruleta) );
+		//var_dump($poblacion);
+		$parent1 = $poblacion[$ruleta[rand(0,$rulSize-1)] ];
+		$parent2 = $poblacion[$ruleta[rand(0,$rulSize-1)] ];
 
 		return [$parent1,$parent2];
 	}
@@ -105,17 +121,31 @@ class Genetic{
 	}
 	function calcula(){
 		$poblacion = $this->generarPoblacion($this->size_pob);
+		
+
 		for ($t=0; $t < $this->num_repeat; $t++) { 
 			$new_pob = [];
 			//Elitismo
+			$ranks = [];
+			foreach ($poblacion as $key =>$individuo) {
+				$ranks[] = $this->fitness($individuo);
+				//$ranks[] = $key;
+			}
+			//echo "<br>pob ini ranks:<br>";
+			//var_dump($ranks);
 			$new_pob[] = $this->elitismo($poblacion);
+			//echo "elitismo:<br>";echo $this->fitness($new_pob[0])."<br>";
+			//echo "Genetic::calcula<br>".sizeof($new_pob) < $this->size_pob;
 			while( sizeof($new_pob) < $this->size_pob ) { 
 				$parent= $this->seleccion($poblacion);
+				//echo "<br>padres:<br>".$this->fitness($parent[0] )." ".$this->fitness($parent[1])."<br>";
 				$children = $this->cruza($parent[0],$parent[1]);
-				$new_pob[]=$this->mutacion( $children[0] );
-				$new_pob[]=$this->mutacion( $children[1] );
+				$new_pob[]=$this->truncate($this->mutacion( $children[0] ) );
+				$new_pob[]=$this->truncate($this->mutacion( $children[1] ) );
+				//echo "generarPoblacion<br>";
 			}
 			$poblacion = $new_pob;
+			//echo "iteracion: $t<br>";
 		}
 		$ranks = [];
 
@@ -124,6 +154,21 @@ class Genetic{
 			//$ranks[] = $key;
 		}
 		return [$poblacion,$ranks];
+	}
+	function truncate($individuo){
+
+		$horario = $this->restric->toMultiArray($individuo);
+		$horario = $this->restric->toMultiArrayDec($horario);
+
+		$horario = $this->restric->limpiarDuracionCursos($horario);
+		$duracion = $this->restric->duracionCursos($horario);
+		//duracion:echo "duracion: $duracion <br>";
+
+		$individuo2 = $this->restric->toSimpleArray($horario);
+		$individuo2 = $this->restric->toSimpleArrayBin($individuo2);
+		
+		return $individuo2;
+
 	}
 	function generarPoblacion($size){
 		$pob = [];
@@ -142,7 +187,12 @@ class Genetic{
 		return $array;
 	}
 	function elitismo($poblacion){
-		foreach ($poblacion as $key => $value)
-			return $value;
+		$ranks = [];
+		foreach ($poblacion as $id => $individuo)
+			$ranks[$id] = $this->fitness($individuo);
+		asort($ranks);
+		foreach ($ranks as $id => $rank) {
+			return $poblacion[$id];
+		}
 	}
 }

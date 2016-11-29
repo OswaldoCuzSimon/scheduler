@@ -9,6 +9,9 @@ function couples($callback,$grupos) {
 	}
 	return $violat;
 }
+function array_unchunk($array){
+    return call_User_Func_Array('array_Merge',$array);
+}
 class Restrcciones{
 	private $numcursos;
 	private $numprof;
@@ -53,7 +56,13 @@ class Restrcciones{
 	 * @param int $number numero decimal
 	 * @return int[] regresea un arreglo con $number en binario
 	 *///probado
-	private function intToBinaryArray($number) {return str_split(decbin($number)); }
+	public function intToBinaryArray($number,$size) {
+		$binStr = str_split(sprintf( "%0".$size."d",decbin($number) ) ); 
+		foreach ($binStr as $key => &$value) {
+			$value = intval($value);
+		}
+		return  $binStr;
+	}
 	/**
 	 * @param int [] $number arreglo binario
 	 * @return intregresea un entero con $number en decimal
@@ -93,6 +102,23 @@ class Restrcciones{
 		}
 		$horario[$this->numdias]=$this->binaryArrayToInt($horario[$this->numdias]);
 		return $horario;
+	}
+	public function toSimpleArray($horarios){
+		//probado
+		
+		$newh = array_unchunk($horarios);
+		foreach ($newh as $key => &$value) {
+			$value = is_array($value)? $value : [$value];
+		}
+		$newh = array_unchunk($newh);
+		return $newh;
+	}
+	public function toSimpleArrayBin($individuo){
+		$sizes = [4,3,4,3,4,3,4,3,4,3,4];
+		foreach ($individuo as $key => &$value) {
+			$value = $this->intToBinaryArray($value,$sizes[$key%sizeof($sizes)]);
+		}
+		return array_unchunk($individuo);
 	}
 	public function withStrKey($horario){
 		$copy = [];
@@ -286,11 +312,9 @@ class Restrcciones{
 	public function duracionCursos($horarios){
 		$violat = 0;
 		foreach ($horarios as $key => $curso) {
-			$duracion = 0;
-			for ($dia=0; $dia < $this->numdias; $dia++) { 
-				$duracion += $curso[$dia][1];
-			}
-			$violat += $duracion == $this->duracion ? 0:1;
+			$duracion = $this->duracionCurso($curso);
+			$violat += $duracion == $this->duracion[$key] ? 0:abs($duracion - $this->duracion[$key]);
+			//echo "duracion: ".$this->duracion[$key]." dif: ".abs($duracion - $this->duracion[$key])."<br>";
 		}
 		return $violat;
 	}
@@ -307,6 +331,38 @@ class Restrcciones{
 			}
 		}
 		return $violat;
+	}
+	public function duracionCurso($curso){
+		$duracion = 0;
+		for ($dia=0; $dia < $this->numdias; $dia++) { 
+			$duracion += $curso[$dia][1];
+		}
+		return $duracion;
+	}
+	public function limpiarDuracionCursos($horarios){
+		$violat = 0;
+		foreach ($horarios as $key => &$curso) {
+			$duracion = $this->duracionCurso($curso);
+			if(  $duracion < $this->duracion[$key] ) {
+				$dia=0;
+				while ( $duracion < $this->duracion[$key] ){
+					$curso[$dia][1]=$curso[$dia][1]+1;
+					$dia = ($dia+1)%$this->numdias;
+					$duracion = $this->duracionCurso($curso);
+
+				}
+			}else if($duracion > $this->duracion[$key] ){
+				$dia=0;
+				while ( $duracion > $this->duracion[$key] ){
+					$curso[$dia][1]=max($curso[$dia][1]-1,0);
+					$dia = ($dia+1)%$this->numdias;
+					$duracion = $this->duracionCurso($curso);
+				}
+			}
+			//echo "duracion: ".$this->duracion[$key]." dif: ".abs($duracion - $this->duracion[$key])."<br>";
+		}
+		//echo "duracion: ".$this->duracionCursos($horarios)."<br>";
+		return $horarios;
 	}
 
 }

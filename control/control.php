@@ -1,8 +1,5 @@
 <?php
-include 'clases.php';
-include 'restricciones.php';
-include '../model/modelo.php';
-include 'algoritmos.php';
+
 
 /**
 * 
@@ -23,24 +20,47 @@ class Control{
 	private $profuea;
 	private $grupos;
 	private $uea;
+
+	private $profesores_name;
 	function __construct() {
 		$this->modelo = new Modelo();
 		//$this->view = new View();
 	}
 	public function regresarIndex($horarios){
-		$hora = ['7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-		foreach ($horario as $curso_id => &$horario) {
-			for ($i=0; $i < 5; $i++) { 
-				$horario[$i]=$hora[$horario[$i][0]];
-				$horario[$i]=$hora[$horario[$i][1]];
+		$hora = ['7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00',
+		'20:00','NA'];
+		$hl = sizeof($hora) -1;
+
+		foreach ($this->profesores as $prof_id => $prof) {
+			$this->profesores_name[$prof_id] = $prof->getNombre(); 
+		}
+		//var_dump($horarios);
+		foreach ($horarios as $curso_id => &$horario) {
+			for ($i=0; $i < 5; $i++) {
+				//echo "curso: $curso_id i:$i hl: $hl hor: ".$horario[$i][0]." ".$horario[$i][1]."<br>";
+				//print_r($horario);echo "<br>";
+				$ind = min($hl,$horario[$i][0] );
+				
+				$horario[$i][0]=$hora[ $ind];
+				$horario[$i][1]=$hora[min($hl,$ind+$horario[$i][1] ) ];
+				if ($horario[$i][1]==0) {
+					$horario[$i][1]='';
+					$horario[$i][0]='';
+				}
+				
+				
 			}
-			$horario[5] = $profesores[$horario[5] ];
+			$nombre = $this->idx_profesores[$horario[5] ];
+			$nombre = isset($this->profesores_name[ $nombre ]) ? $this->profesores_name[ $nombre ] : 'NA';
+			$horario[5] = $nombre ;
 		}
 		for ($i=0; $i < sizeof($horarios); $i++) { 
 			$value = $horarios[$i];
 			unset($horarios[$i]);
-			$horarios[$cursos[$i] ] = $value;
+			$horarios[$this->idx_cursos[$i] ] = $value;
 		}
+		//var_dump($horarios);
+		return $horarios;
 	}
 	public function mapearIndex(){
 		$this->idx_grupos=array_keys($this->grupos);
@@ -50,6 +70,9 @@ class Control{
 		for ($i=0; $i < sizeof($this->profesores); $i++) { 
 			$this->idx_profesores[$i] = $this->profesores[$i]->getProfesor_id();
 			$this->profesores[$i]->setProfesor_Id($i);
+		}
+		foreach ($this->cursos as $id_curso => $curso) {
+			$this->idx_cursos[] = $curso->getClave();
 		}
 
 		$this->profesores_idx = array_flip($this->idx_profesores);
@@ -81,6 +104,89 @@ class Control{
 	}
 	function solucionarGenetic(){
 		$this->cursos = $this->modelo->getCursos(1);
+		$this->profesores = array_values($this->modelo->getProfesores(1) );
+		$this->profuea = $this->modelo->getProfesorUEA(1);
+		$this->grupos = $this->modelo->getGrupos(1);
+		$this->uea    = $this->modelo->getUEA(1);
+
+		/*** REINDEXAR ***/
+		//$this->mapearIndex();
+
+		$restric = new Restrcciones($this->cursos,$this->profesores,$this->profuea,$this->grupos);
+
+		$genetic = new Genetic(39,sizeof($this->cursos),5,0.1,10,$restric);
+		$result = $genetic->calcula();
+		//echo "Control::solucionarGenetic <br>";
+		$poblacion = $result[0];
+		$ranks = $result[1];
+		//var_dump($poblacion);
+		
+		//var_dump($horarios);
+		
+		$horarios = $this->bestSolution($poblacion,$ranks);
+		$horarios = $restric->toMultiArray($poblacion[0]);
+		$horarios = $restric->toMultiArrayDec($horarios);
+		//$horarios = $this->regresarIndex($horarios);
+		return $horarios;
+	}
+	public function bestSolution($poblacion,$ranks){
+		//var_dump($ranks);
+		asort($ranks);
+		var_dump($ranks);
+		foreach ($ranks as $id => $rank) {
+			return $poblacion[$id];
+		}
+	}
+	public function printHorario($horario){
+		
+		$cursos = array_values( $this->modelo->getCursos(1) );
+		$profesores = array_values( $this->modelo->getProfesores(1) );
+		$head = "<tr class='days'><th>Nombre del curso</th><th>Nombre del profesor</th> <th>Lunes</th><th>Martes</th><th>Miercoles</th><th>Jueves</th><th>Viernes</th><th>Duracion</th></tr>\n";
+		$body = "";
+		//var_dump($horario);
+		
+		foreach ($horario as $idcurso => $curso) {
+			$lu=$this->indexToHora($curso[0][0],$curso[0][1]);
+			$ma=$this->indexToHora($curso[1][0],$curso[1][1]);
+			$mi=$this->indexToHora($curso[2][0],$curso[2][1]);
+			$ju=$this->indexToHora($curso[3][0],$curso[3][1]);
+			$vi=$this->indexToHora($curso[4][0],$curso[4][1]);
+			$row =  sprintf("<tr>
+				<td>%s</td>
+				<td>%s</td>
+				<td>%s</td>
+				<td>%s</td>
+				<td>%s</td>
+				<td>%s</td>
+				<td>%s</td>
+				<td>%s</td>
+				</tr>",
+				$cursos[$idcurso]->getNombre(),
+				$profesores[$curso[5] ]->getNombre(),
+				$lu,$ma,$mi,$ju,$vi,$cursos[$idcurso]->getHorasSemana() );
+			$body .= $row; 
+			
+		}
+		
+		//echo $row;
+		return "<table style='width:100%'>".$head.$body."</table>";
+	}
+	public function indexToHora($ini, $dur){
+		$hora = ['7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00',
+		'20:00','NA'];
+		if($dur==0){
+			return "-";
+		}
+		$limit = sizeof($hora)-1;
+		$ini = min($limit,$ini);
+		$dur = min($limit,$ini+$dur);
+
+		$ini = $hora[$ini];
+		$dur = $hora[$dur];
+		return "$ini-$dur";
+	}
+	public function prueba(){
+		$this->cursos = $this->modelo->getCursos(1);
 		$this->profesores = $this->modelo->getProfesores(1);
 		$this->profuea = $this->modelo->getProfesorUEA(1);
 		$this->grupos = $this->modelo->getGrupos(1);
@@ -91,23 +197,18 @@ class Control{
 	
 		$restric = new Restrcciones($this->cursos,$this->profesores,$this->profuea,$this->grupos);
 
-		$genetic = new Genetic(39,sizeof($this->cursos),10,0.0001,100,$restric);
-		$result = $genetic->calcula();
+		$genetic = new Genetic(39,sizeof($this->cursos),100,0.1,10000,$restric);
+		$individuo=$genetic->generarIndividuo();
 
-		$poblacion = $result[0];
-		$ranks = $result[1];
-		//var_dump($poblacion);
-		$horarios = $restric->toMultiArray($poblacion[0]);
-		$horarios = $restric->toMultiArrayDec($horarios);
-		var_dump($horarios);
-		//$this->regresarIndex($horarios);
+		$horario = $restric->toMultiArray($individuo);
+		$horario = $restric->toMultiArrayDec($horario);
+
+		$individuo2 = $restric->toSimpleArray($horario);
+		$individuo2 = $restric->toSimpleArrayBin($individuo2);
+
+		$resultado = array_diff($individuo, $individuo2);
+
+		print_r($resultado);
 	}
 }
-
-
-$control = new Control();
-
-$control->solucionarGenetic();
-
-
 ?>

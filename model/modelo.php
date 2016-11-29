@@ -141,9 +141,10 @@ class Modelo{
 
 			
 			while ($myrow = $result->fetch_assoc()) {
-				$prof = new Profesor($myrow['profesor_id'], $usuario_id,$myrow['nombre'],$myrow['carga_academica']);
+				$prof = new Profesor($myrow['profesor_id'], $usuario_id,utf8_encode($myrow['nombre'])
+				,$myrow['carga_academica']);
 				$prof->setAvailability($this->getDisponibilidad($usuario_id,$myrow['profesor_id']) );
-				$profesores[] = $prof;
+				$profesores[$myrow['profesor_id']] = $prof;
 			}
 		}else{
 			error_log(sprintf("[%d] %s",$stmt->sqlstate,$stmt->error));
@@ -199,7 +200,7 @@ class Modelo{
 			$result = $stmt->get_result();
 			
 			while ($myrow = $result->fetch_assoc()) {
-				$uea[]= new UEA($myrow['uea_id'], $usuario_id,$myrow['nombre'],$myrow['cupo'],
+				$uea[$myrow['uea_id'] ]= new UEA($myrow['uea_id'], $usuario_id,utf8_encode($myrow['nombre']),$myrow['cupo'],
 					$myrow['horas'],$myrow['nivel'],$myrow['trimestre'],$myrow['obligatoria'],$myrow['creditos']);
 			}
 		}else{
