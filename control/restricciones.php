@@ -94,15 +94,25 @@ class Restrcciones{
 		}
 		return $new;
 	}
-	public function toArrayDec($horario){
+	/**
+	 * convierte un curso con representacion binario a un arreglo con representacion decimal
+	 * @param int[][][] $curso curso en representacion binaria
+	 * @return int[][] curso en representacion decimal
+	 */
+	public function toArrayDec($curso){
 		//probado
 		for ($d=0; $d < $this->numdias; $d++) {
-			$horario[$d][0]= $this->binaryArrayToInt($horario[$d][0]);
-			$horario[$d][1]= $this->binaryArrayToInt($horario[$d][1]);
+			$curso[$d][0]= $this->binaryArrayToInt($curso[$d][0]);
+			$curso[$d][1]= $this->binaryArrayToInt($curso[$d][1]);
 		}
-		$horario[$this->numdias]=$this->binaryArrayToInt($horario[$this->numdias]);
-		return $horario;
+		$curso[$this->numdias]=$this->binaryArrayToInt($curso[$this->numdias]);
+		return $curso;
 	}
+	/**
+	 * convierte un curso con representacion binario a un arreglo con representacion decimal
+	 * @param int[][][] $curso curso en representacion binaria
+	 * @return int[][] curso en representacion decimal
+	 */
 	public function toSimpleArray($horarios){
 		//probado
 		
@@ -113,6 +123,11 @@ class Restrcciones{
 		$newh = array_unchunk($newh);
 		return $newh;
 	}
+	/**
+	 * convierte un array de cursos con representacion binario a un arreglo con representacion decimal
+	 * @param int[][][] $curso curso en representacion binaria
+	 * @return int[][] curso en representacion decimal
+	 */
 	public function toSimpleArrayBin($individuo){
 		$sizes = [4,3,4,3,4,3,4,3,4,3,4];
 		foreach ($individuo as $key => &$value) {
@@ -232,7 +247,7 @@ class Restrcciones{
 				$violat++;
 			for ($dia=0; $dia < $this->numdias; $dia++) {
 				if($curso[$dia][1]!=0 && ($curso[$dia][0]+$curso[$dia][1] >= $this->HORA_MAX) ){
-					$violat+=max(0,$curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX);
+					$violat+=abs($curso[$dia][0]+$curso[$dia][1] - $this->HORA_MAX) ;
 				}
 			}
 		}

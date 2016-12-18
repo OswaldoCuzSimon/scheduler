@@ -114,7 +114,7 @@ class Control{
 
 		$restric = new Restrcciones($this->cursos,$this->profesores,$this->profuea,$this->grupos);
 
-		$genetic = new Genetic(39,sizeof($this->cursos),5,0.1,10,$restric);
+		$genetic = new Genetic(39,sizeof($this->cursos),10,0.1,20,$restric);
 		$result = $genetic->calcula();
 		//echo "Control::solucionarGenetic <br>";
 		$poblacion = $result[0];
